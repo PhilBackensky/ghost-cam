@@ -3,111 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro - Split View</title>
+    <title>Ghost Cam Pro - Android Brave Fix</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --accent: #fffc00; --bg: #000; --radius: 15px; }
-        
+        :root { --accent: #fffc00; --bg: #000; }
         html, body { 
             margin: 0; padding: 0; height: 100dvh; width: 100vw; 
-            background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; 
+            background: #000; color: #fff; font-family: sans-serif; 
             overflow: hidden; position: fixed;
         }
-        
         #overlay-start { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .start-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; }
+        .start-btn { background: var(--accent); color: #000; border: none; padding: 18px 40px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
         .app-container { 
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            height: 100dvh; width: 100vw; box-sizing: border-box; padding: 8px; gap: 8px;
+            display: flex; flex-direction: column; 
+            height: 100dvh; width: 100vw; box-sizing: border-box; padding: 5px; gap: 5px;
         }
 
-        /* OKNO GOŚCIA */
+        /* GÓRA: WIDEO GOŚCIA (Zawsze czyste, nikt na nie nie nachodzi) */
         #remote-wrapper { 
-            background: #111; border-radius: var(--radius); overflow: hidden; border: 1px solid #333; display: flex;
+            flex: 1; background: #111; border-radius: 15px; overflow: hidden; border: 1px solid #333; display: flex;
         }
         #remote-video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* PANEL BOCZNY */
-        .side-panel { display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 0; }
-
-        /* KONTENER STEROWANIA Z TWOIM WIDEO */
+        /* ŚRODEK: TWOJA KAMERA + PRZYCISKI (W jednym rzędzie) */
         .controls-row { 
-            display: flex; gap: 8px; align-items: stretch; flex-shrink: 0; height: 90px;
+            display: flex; gap: 5px; height: 85px; flex-shrink: 0;
         }
         #local-wrapper { 
-            width: 120px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--accent); flex-shrink: 0;
+            width: 110px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid var(--accent); flex-shrink: 0;
         }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        .btn-stack { display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); gap: 4px; flex: 1; }
-        .action-btn { background: #222; color: white; border: 1px solid #444; border-radius: 8px; font-size: 16px; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+        .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; }
+        .action-btn { background: #222; color: white; border: 1px solid #444; border-radius: 8px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* CZAT */
+        /* DÓŁ: CZAT */
         .chat-area { 
-            flex: 1; display: flex; flex-direction: column; background: #0a0a0a; border-radius: var(--radius); border: 1px solid #222; overflow: hidden; min-height: 0;
+            height: 180px; display: flex; flex-direction: column; background: #0a0a0a; border-radius: 15px; border: 1px solid #222; overflow: hidden; flex-shrink: 0;
         }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; font-size: 13px; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+        .msg { padding: 6px 10px; border-radius: 8px; max-width: 85%; }
         .msg.me { align-self: flex-end; background: var(--accent); color: #000; font-weight: bold; }
         .msg.peer { align-self: flex-start; background: #333; }
 
-        .chat-input-row { background: #111; border-top: 1px solid #222; padding: 8px; display: flex; gap: 8px; flex-shrink: 0; }
+        .chat-input-row { background: #111; border-top: 1px solid #222; padding: 6px; display: flex; gap: 6px; }
         #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; outline: none; }
-
-        /* MOBILE FIX */
-        @media (max-width: 768px) {
-            .app-container { grid-template-columns: 1fr; grid-template-rows: 1fr 280px; }
-            .controls-row { height: 80px; }
-            #local-wrapper { width: 100px; }
-            .btn-stack { grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; }
-        }
     </style>
 </head>
 <body>
-
 <div id="overlay-start">
     <h1 style="color:var(--accent)">GHOST CAM PRO</h1>
-    <button class="start-btn" onclick="initApp()">ODBLOKUJ LIVE</button>
+    <button class="start-btn" onclick="initApp()">START</button>
 </div>
-
 <div class="app-container">
-    <div id="remote-wrapper">
-        <video id="remote-video" autoplay playsinline></video>
-    </div>
-    
-    <div class="side-panel">
-        <div class="controls-row">
-            <div id="local-wrapper">
-                <video id="local-video" autoplay playsinline muted></video>
-            </div>
-            <div class="btn-stack">
-                <button class="action-btn" onclick="location.reload()">🔄</button>
-                <button class="action-btn" onclick="copyInviteLink()">🔗</button>
-                <button class="action-btn" onclick="manualSync()">⚡</button>
-            </div>
+    <div id="remote-wrapper"><video id="remote-video" autoplay playsinline></video></div>
+    <div class="controls-row">
+        <div id="local-wrapper"><video id="local-video" autoplay playsinline muted></video></div>
+        <div class="btn-stack">
+            <button class="action-btn" onclick="location.reload()">🔄</button>
+            <button class="action-btn" onclick="copyInviteLink()">🔗</button>
+            <button class="action-btn" onclick="manualSync()">⚡</button>
         </div>
-
-        <div class="chat-area">
-            <div id="chat-messages"></div>
-            <div class="chat-input-row">
-                <input type="text" id="msg-input" placeholder="Napisz..." onkeypress="if(event.key==='Enter')sendChat()">
-                <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 15px; font-weight:bold; color:#000;">OK</button>
-            </div>
+    </div>
+    <div class="chat-area">
+        <div id="chat-messages"></div>
+        <div class="chat-input-row">
+            <input type="text" id="msg-input" placeholder="Wiadomość..." onkeypress="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 12px; font-weight:bold; color:#000;">OK</button>
         </div>
     </div>
 </div>
-
 <script>
     const METERED_DOMAIN = "backensky.metered.live";
     const API_KEY = "1c9015c3aacc93647fc597a3684fdb387677";
-
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     let roomID = window.location.hash.substring(1) || Math.random().toString(36).substring(2, 8);
     window.location.hash = roomID;
-
     let peer, conn, localStream;
     const rVideo = document.getElementById('remote-video');
     const lVideo = document.getElementById('local-video');
@@ -142,20 +115,13 @@
                 call.answer(localStream);
                 call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
             });
-            peer.on('connection', c => {
-                conn = c;
-                c.on('data', data => addChatMsg(data, 'peer'));
-            });
+            peer.on('connection', c => { conn = c; c.on('data', d => addChatMsg(d, 'peer')); });
         } catch (e) { alert("Error: " + e.message); }
     }
 
     function sendChat() {
-        const input = document.getElementById('msg-input');
-        if (input.value && conn && conn.open) {
-            conn.send(input.value);
-            addChatMsg(input.value, 'me');
-            input.value = '';
-        }
+        const i = document.getElementById('msg-input');
+        if (i.value && conn && conn.open) { conn.send(i.value); addChatMsg(i.value, 'me'); i.value = ''; }
     }
 
     function manualSync() {
@@ -163,7 +129,7 @@
         const call = peer.call(roomID, localStream);
         call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
         conn = peer.connect(roomID);
-        conn.on('data', data => addChatMsg(data, 'peer'));
+        conn.on('data', d => addChatMsg(d, 'peer'));
     }
 
     function copyInviteLink() {
