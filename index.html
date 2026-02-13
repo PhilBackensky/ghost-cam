@@ -3,51 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro - Professional Relay</title>
+    <title>Ghost Cam Pro - Full Suite</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --accent: #fffc00; }
         html, body { margin: 0; padding: 0; height: 100dvh; background: #000; color: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
         #overlay-start { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        .start-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 252, 0, 0.4); }
-        .app-layout { display: flex; flex-direction: column; height: 100dvh; padding: 10px; box-sizing: border-box; gap: 10px; }
+        .start-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; }
+        .app-layout { display: flex; flex-direction: column; height: 100dvh; padding: 10px; box-sizing: border-box; gap: 8px; }
         #remote-wrapper { flex: 1; background: #111; border-radius: 20px; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         #remote-video { width: 100%; height: 100%; object-fit: cover; }
-        .side-panel { display: flex; gap: 10px; align-items: center; }
-        #local-wrapper { width: 120px; height: 90px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #444; }
+        
+        /* Sekcja Chatu */
+        .chat-container { height: 160px; display: flex; flex-direction: column; background: #0a0a0a; border: 1px solid #222; border-radius: 15px; overflow: hidden; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 8px; font-size: 13px; display: flex; flex-direction: column; gap: 5px; }
+        .msg { padding: 6px 12px; border-radius: 12px; max-width: 80%; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: var(--accent); color: #000; font-weight: 500; }
+        .msg.peer { align-self: flex-start; background: #333; color: #fff; }
+        .chat-input-row { display: flex; padding: 8px; gap: 8px; background: #111; border-top: 1px solid #222; }
+        #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; outline: none; }
+        
+        .bottom-controls { display: flex; gap: 8px; align-items: center; }
+        #local-wrapper { width: 100px; height: 75px; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #444; flex-shrink: 0; }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: 1; }
-        .action-btn { background: #222; color: white; border: 1px solid #333; padding: 15px 0; border-radius: 10px; font-size: 20px; cursor: pointer; }
-        #status-log { height: 70px; overflow-y: auto; font-size: 10px; color: var(--accent); background: #0a0a0a; padding: 8px; border-radius: 10px; border: 1px solid #222; font-family: monospace; }
+        .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; flex: 1; }
+        .action-btn { background: #222; color: white; border: 1px solid #333; padding: 12px 0; border-radius: 8px; font-size: 18px; }
+        #status-bar { font-size: 9px; color: #555; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="overlay-start">
-    <h1 style="color:var(--accent); margin-bottom: 10px;">GHOST CAM PRO</h1>
-    <p style="font-size: 12px; color: #666; margin-bottom: 30px;">PROFESSIONAL P2P ENCRYPTED VIDEO<br>RELAY MODE ACTIVE</p>
-    <button class="start-btn" onclick="initApp()">ODBLOKUJ POŁĄCZENIE</button>
+    <h1 style="color:var(--accent)">GHOST CAM PRO</h1>
+    <p style="font-size: 12px; color: #666; margin-bottom: 30px;">FULL SUITE: VIDEO + CHAT + TURN RELAY</p>
+    <button class="start-btn" onclick="initApp()">ODBLOKUJ LIVE</button>
 </div>
 
 <div class="app-layout">
-    <div id="remote-wrapper">
-        <video id="remote-video" autoplay playsinline muted></video>
-    </div>
-    <div class="side-panel">
-        <div id="local-wrapper">
-            <video id="local-video" autoplay playsinline muted></video>
+    <div id="remote-wrapper"><video id="remote-video" autoplay playsinline></video></div>
+    
+    <div class="chat-container">
+        <div id="chat-messages"></div>
+        <div class="chat-input-row">
+            <input type="text" id="msg-input" placeholder="Napisz wiadomość..." onkeypress="if(event.key==='Enter')sendChat()">
+            <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 15px; font-weight:bold;">OK</button>
         </div>
+    </div>
+
+    <div class="bottom-controls">
+        <div id="local-wrapper"><video id="local-video" autoplay playsinline muted></video></div>
         <div class="btn-stack">
             <button class="action-btn" onclick="location.reload()">🔄</button>
             <button class="action-btn" onclick="copyInviteLink()">🔗</button>
             <button class="action-btn" onclick="manualSync()">⚡</button>
         </div>
     </div>
-    <div id="status-log">OCZEKIWANIE NA START...</div>
+    <div id="status-bar">System Ready</div>
 </div>
 
 <script>
-    // TWOJE DANE Z METERED.CA
     const METERED_DOMAIN = "backensky.metered.live";
     const API_KEY = "1c9015c3aacc93647fc597a3684fdb387677";
 
@@ -56,27 +70,24 @@
     let roomID = window.location.hash.substring(1) || Math.random().toString(36).substring(2, 8);
     window.location.hash = roomID;
 
-    let peer, localStream;
+    let peer, conn, localStream;
     const rVideo = document.getElementById('remote-video');
     const lVideo = document.getElementById('local-video');
 
-    function log(msg) {
+    function addChatMsg(text, type) {
         const div = document.createElement('div');
-        div.innerText = `> ${msg}`;
-        const logBox = document.getElementById('status-log');
-        logBox.appendChild(div);
-        logBox.scrollTop = logBox.scrollHeight;
+        div.className = `msg ${type}`;
+        div.innerText = text;
+        const box = document.getElementById('chat-messages');
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
     }
 
     async function getIceServers() {
         try {
-            log("POBIERANIE POŚWIADCZEŃ TURN...");
             const response = await fetch(`https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${API_KEY}`);
-            const iceServers = await response.json();
-            log("SERWERY RELAY ZAŁADOWANE");
-            return iceServers;
+            return await response.json();
         } catch (e) {
-            log("BŁĄD TURN. UŻYWAM TRYBU AWARYJNEGO STUN.");
             return [{ urls: "stun:stun.relay.metered.ca:80" }];
         }
     }
@@ -84,64 +95,59 @@
     async function initApp() {
         document.getElementById('overlay-start').style.display = 'none';
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user", width: { ideal: 640 } }, 
-                audio: true 
-            });
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
             lVideo.srcObject = localStream;
-            log("KAMERA OK");
             
             const iceServers = await getIceServers();
-            
             peer = new Peer(mode === 'join' ? roomID + "_guest" : roomID, {
                 config: { iceServers: iceServers, iceTransportPolicy: 'all' }
             });
 
-            peer.on('open', (id) => {
-                log("SYSTEM ONLINE. ID: " + roomID);
-                if (mode === 'join') {
-                    log("PRÓBA DOŁĄCZENIA...");
-                    setTimeout(manualSync, 1500);
-                }
+            peer.on('open', () => {
+                document.getElementById('status-bar').innerText = "Połączono: " + roomID;
+                if (mode === 'join') setTimeout(manualSync, 1000);
             });
 
             peer.on('call', call => {
-                log("POŁĄCZENIE PRZYCHODZĄCE...");
                 call.answer(localStream);
-                call.on('stream', s => { 
-                    rVideo.srcObject = s;
-                    rVideo.muted = false;
-                    rVideo.play().catch(e => log("KLIKNIJ EKRAN ABY WŁĄCZYĆ DŹWIĘK"));
-                });
+                call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
             });
 
-            peer.on('error', err => log("BŁĄD P2P: " + err.type));
+            peer.on('connection', c => {
+                conn = c;
+                setupChat();
+            });
 
-        } catch (e) { log("BŁĄD SPRZĘTOWY: " + e.message); }
+        } catch (e) { alert("Błąd kamery: " + e.message); }
+    }
+
+    function setupChat() {
+        conn.on('open', () => addChatMsg("Czat aktywny!", "peer"));
+        conn.on('data', data => addChatMsg(data, 'peer'));
+    }
+
+    function sendChat() {
+        const input = document.getElementById('msg-input');
+        if (input.value && conn && conn.open) {
+            conn.send(input.value);
+            addChatMsg(input.value, 'me');
+            input.value = '';
+        }
     }
 
     function manualSync() {
         if (!peer || !localStream) return;
-        log("ŁĄCZENIE PRZEZ TURN RELAY...");
         const call = peer.call(roomID, localStream);
-        call.on('stream', s => { 
-            rVideo.srcObject = s;
-            rVideo.muted = false;
-            rVideo.play();
-        });
+        call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
+        
+        conn = peer.connect(roomID);
+        setupChat();
     }
 
     function copyInviteLink() {
         const link = window.location.origin + window.location.pathname + "?mode=join#" + roomID;
-        navigator.clipboard.writeText(link).then(() => alert("LINK SKOPIOWANY!"));
+        navigator.clipboard.writeText(link).then(() => alert("Link skopiowany!"));
     }
-
-    // Obsługa wybudzania iPhone'a
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && localStream) {
-            log("POWRÓT DO APKI - ODŚWIEŻANIE...");
-        }
-    });
 </script>
 </body>
 </html>
