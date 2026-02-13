@@ -3,171 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro - Hybrid Fix</title>
+    <title>Ghost Cam Pro - Custom Layout</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --accent: #fffc00; --bg: #000; --panel: #111; --radius: 20px; }
+        :root { --accent: #fffc00; --bg: #000; --radius: 15px; }
         
         html, body { 
-            margin: 0; padding: 0; 
-            height: 100dvh; width: 100vw; 
-            background: var(--bg); color: #fff; 
-            font-family: -apple-system, sans-serif; 
-            overflow: hidden; 
-            position: fixed;
+            margin: 0; padding: 0; height: 100dvh; width: 100vw; 
+            background: #000; color: #fff; font-family: -apple-system, sans-serif; 
+            overflow: hidden; position: fixed;
         }
         
         #overlay-start { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .start-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-        /* GŁÓWNY KONTENER - TWOJA STRUKTURA LAPTOP */
+        /* UKŁAD LAPTOP (Wideo lewo, Panel prawo) */
         .app-container { 
             display: grid;
             grid-template-columns: 1fr 320px;
-            height: 100dvh;
-            width: 100vw;
-            box-sizing: border-box;
-            padding: 10px;
-            gap: 10px;
+            height: 100dvh; width: 100vw; box-sizing: border-box; padding: 10px; gap: 10px;
         }
 
         #remote-wrapper { 
-            background: #1a1a1a; 
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid #333;
-            display: flex;
-            position: relative;
+            background: #111; border-radius: var(--radius); overflow: hidden; border: 1px solid #333; display: flex;
         }
         #remote-video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* PRAWY PANEL */
-        .right-panel { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px;
-            height: 100%;
-            min-height: 0;
-        }
+        .side-panel { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
 
         #local-wrapper { 
-            width: 100%; height: 160px;
-            background: #000; border-radius: 15px; 
-            overflow: hidden; border: 1px solid #333; flex-shrink: 0;
+            width: 100%; height: 160px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #444; flex-shrink: 0;
         }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
         .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; flex-shrink: 0; }
-        .action-btn { background: #222; color: white; border: 1px solid #444; padding: 12px 0; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        .action-btn { background: #222; color: white; border: 1px solid #444; padding: 12px 0; border-radius: 10px; font-size: 20px; cursor: pointer; }
 
         .chat-area { 
-            flex: 1;
-            display: flex; 
-            flex-direction: column; 
-            background: #0a0a0a; 
-            border-radius: 15px; 
-            border: 1px solid #222; 
-            overflow: hidden;
-            position: relative;
-            min-height: 0;
+            flex: 1; display: flex; flex-direction: column; background: #0a0a0a; border-radius: var(--radius); border: 1px solid #222; overflow: hidden; min-height: 0;
         }
-        
-        #chat-messages { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 6px;
-        }
-        
-        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; font-size: 13px; line-height: 1.4; word-break: break-word; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; }
         .msg.me { align-self: flex-end; background: var(--accent); color: #000; font-weight: bold; }
         .msg.peer { align-self: flex-start; background: #333; }
 
-        .chat-input-row { 
-            background: #111; 
-            border-top: 1px solid #222;
-            padding: 10px;
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        
-        #msg-input { 
-            flex: 1; 
-            background: #000; 
-            border: 1px solid #333; 
-            color: #fff; 
-            padding: 12px; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            outline: none;
-        }
+        .chat-input-row { background: #111; border-top: 1px solid #222; padding: 8px; display: flex; gap: 8px; flex-shrink: 0; }
+        #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; outline: none; }
 
-        /* MOBILE FIX - ZACHOWANIE LOCAL-WRAPPER */
+        /* UKŁAD MOBILNY (WEDŁUG TWOJEGO PROJEKTU) */
         @media (max-width: 768px) {
             .app-container { 
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr auto; /* Automatyczne dopasowanie panelu pod wideo */
+                display: flex; flex-direction: column; gap: 5px; padding: 5px;
             }
-            .right-panel { 
-                height: 450px; /* Sztywna wysokość panelu na komórce */
+            #remote-wrapper { height: 40vh; flex: none; } /* CZERWONY */
+
+            .side-panel { display: grid; grid-template-rows: auto 1fr; gap: 5px; flex: 1; }
+
+            /* ŚRODKOWY WIERSZ: PRZYCISKI I OKNO HOSTA */
+            .controls-group { 
+                display: grid; 
+                grid-template-columns: 1fr 120px; /* NIEBIESKI | JASNOZIELONY */
+                gap: 5px;
+                height: 100px;
             }
-            #local-wrapper { 
-                display: block; /* Przywracamy okno hosta */
-                height: 100px; /* Mniejsze na komórce */
-                width: 140px; /* Prostokątne */
-                align-self: center; /* Wyśrodkowane pod oknem gościa */
+            
+            .btn-stack { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; /* Przyciski obok siebie */
+                grid-template-rows: 1fr;
+                gap: 5px;
             }
-            .chat-area {
-                height: 200px;
-            }
+            .action-btn { font-size: 24px; height: 100%; }
+            #local-wrapper { width: 100%; height: 100%; }
+
+            /* CZAT (ŻÓŁTY) */
+            .chat-area { flex: 1; min-height: 150px; }
         }
     </style>
 </head>
 <body>
-
 <div id="overlay-start">
     <h1 style="color:var(--accent)">GHOST CAM PRO</h1>
-    <button class="start-btn" onclick="initApp()">ODBLOKUJ LIVE</button>
+    <button class="start-btn" onclick="initApp()">START</button>
 </div>
-
 <div class="app-container">
     <div id="remote-wrapper">
         <video id="remote-video" autoplay playsinline></video>
     </div>
-    
-    <div class="right-panel">
-        <div id="local-wrapper">
-            <video id="local-video" autoplay playsinline muted></video>
+    <div class="side-panel">
+        <div class="controls-group">
+            <div class="btn-stack">
+                <button class="action-btn" onclick="location.reload()">🔄</button>
+                <button class="action-btn" onclick="copyInviteLink()">🔗</button>
+                <button class="action-btn" onclick="manualSync()">⚡</button>
+            </div>
+            <div id="local-wrapper">
+                <video id="local-video" autoplay playsinline muted></video>
+            </div>
         </div>
-
-        <div class="btn-stack">
-            <button class="action-btn" onclick="location.reload()">🔄</button>
-            <button class="action-btn" onclick="copyInviteLink()">🔗</button>
-            <button class="action-btn" onclick="manualSync()">⚡</button>
-        </div>
-
         <div class="chat-area">
             <div id="chat-messages"></div>
             <div class="chat-input-row">
                 <input type="text" id="msg-input" placeholder="Napisz..." onkeypress="if(event.key==='Enter')sendChat()">
-                <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 15px; font-weight:bold; color:#000; cursor:pointer;">OK</button>
+                <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 15px; font-weight:bold; color:#000;">OK</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     const METERED_DOMAIN = "backensky.metered.live";
     const API_KEY = "1c9015c3aacc93647fc597a3684fdb387677";
-
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     let roomID = window.location.hash.substring(1) || Math.random().toString(36).substring(2, 8);
     window.location.hash = roomID;
-
     let peer, conn, localStream;
     const rVideo = document.getElementById('remote-video');
     const lVideo = document.getElementById('local-video');
@@ -185,9 +134,7 @@
         try {
             const response = await fetch(`https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${API_KEY}`);
             return await response.json();
-        } catch (e) {
-            return [{ urls: "stun:stun.relay.metered.ca:80" }];
-        }
+        } catch (e) { return [{ urls: "stun:stun.relay.metered.ca:80" }]; }
     }
 
     async function initApp() {
@@ -195,31 +142,22 @@
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
             lVideo.srcObject = localStream;
-            
             const iceServers = await getIceServers();
             peer = new Peer(mode === 'join' ? roomID + "_guest" : roomID, {
                 config: { iceServers: iceServers, iceTransportPolicy: 'all' }
             });
-
             peer.on('open', () => { if (mode === 'join') setTimeout(manualSync, 1000); });
             peer.on('call', call => {
                 call.answer(localStream);
                 call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
             });
-            peer.on('connection', c => {
-                conn = c;
-                c.on('data', data => addChatMsg(data, 'peer'));
-            });
-        } catch (e) { alert("Hardware Error: " + e.message); }
+            peer.on('connection', c => { conn = c; c.on('data', d => addChatMsg(d, 'peer')); });
+        } catch (e) { alert("Error: " + e.message); }
     }
 
     function sendChat() {
-        const input = document.getElementById('msg-input');
-        if (input.value && conn && conn.open) {
-            conn.send(input.value);
-            addChatMsg(input.value, 'me');
-            input.value = '';
-        }
+        const i = document.getElementById('msg-input');
+        if (i.value && conn && conn.open) { conn.send(i.value); addChatMsg(i.value, 'me'); i.value = ''; }
     }
 
     function manualSync() {
@@ -227,17 +165,13 @@
         const call = peer.call(roomID, localStream);
         call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
         conn = peer.connect(roomID);
-        conn.on('data', data => addChatMsg(data, 'peer'));
+        conn.on('data', d => addChatMsg(d, 'peer'));
     }
 
     function copyInviteLink() {
         const link = window.location.origin + window.location.pathname + "?mode=join#" + roomID;
         navigator.clipboard.writeText(link).then(() => alert("Skopiowano link!"));
     }
-
-    window.addEventListener('resize', () => {
-        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-    });
 </script>
 </body>
 </html>
