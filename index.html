@@ -3,97 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro - Classic Sidebar</title>
+    <title>Ghost Cam Pro - Final Mobile Fix</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        :root { --accent: #fffc00; --bg: #000; --radius: 15px; }
+        :root { --accent: #fffc00; --bg: #000; --radius: 20px; }
         
         html, body { 
-            margin: 0; padding: 0; height: 100dvh; width: 100vw; 
-            background: #000; color: #fff; font-family: sans-serif; 
+            margin: 0; padding: 0; 
+            height: 100dvh; width: 100vw; 
+            background: var(--bg); color: #fff; 
+            font-family: -apple-system, sans-serif; 
             overflow: hidden; position: fixed;
         }
         
         #overlay-start { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .start-btn { background: var(--accent); color: #000; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-        /* GŁÓWNY UKŁAD - LAPTOP (Wideo lewo, Panel prawo) */
         .app-container { 
             display: grid;
             grid-template-columns: 1fr 320px;
-            height: 100dvh; width: 100vw; box-sizing: border-box; padding: 10px; gap: 10px;
+            height: 100dvh;
+            width: 100vw;
+            box-sizing: border-box;
+            padding: 10px;
+            gap: 10px;
         }
 
+        /* GŁÓWNE WIDEO GOSCIA */
         #remote-wrapper { 
-            background: #111; border-radius: var(--radius); overflow: hidden; border: 1px solid #333; display: flex;
+            background: #1a1a1a; 
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid #333;
+            position: relative;
+            display: flex;
         }
         #remote-video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* PRAWY PANEL - STOS PIONOWY */
-        .side-panel { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
-
+        /* TWOJ PŁYWAJĄCY PODGLĄD (PiP) */
         #local-wrapper { 
-            width: 100%; height: 180px; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #444; flex-shrink: 0;
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 100px;
+            aspect-ratio: 3/4;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 10;
         }
         #local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
-        .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; flex-shrink: 0; }
-        .action-btn { background: #222; color: white; border: 1px solid #444; padding: 12px 0; border-radius: 10px; font-size: 20px; cursor: pointer; }
-
-        /* CZAT */
-        .chat-area { 
-            flex: 1; display: flex; flex-direction: column; background: #0a0a0a; border-radius: var(--radius); border: 1px solid #222; overflow: hidden; min-height: 0;
+        /* PANEL BOCZNY (PRZYCISKI + CZAT) */
+        .side-panel { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            height: 100%;
+            min-height: 0;
         }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
-        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; word-break: break-all; }
+
+        .btn-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; flex-shrink: 0; }
+        .action-btn { background: #222; color: white; border: 1px solid #444; padding: 12px 0; border-radius: 10px; font-size: 18px; cursor: pointer; }
+
+        .chat-area { 
+            flex: 1;
+            display: flex; 
+            flex-direction: column; 
+            background: #0a0a0a; 
+            border-radius: 15px; 
+            border: 1px solid #222; 
+            overflow: hidden;
+            min-height: 0;
+        }
+        
+        #chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 85%; font-size: 13px; line-height: 1.4; }
         .msg.me { align-self: flex-end; background: var(--accent); color: #000; font-weight: bold; }
         .msg.peer { align-self: flex-start; background: #333; }
 
-        .chat-input-row { background: #111; border-top: 1px solid #222; padding: 8px; display: flex; gap: 8px; flex-shrink: 0; }
-        #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; outline: none; }
+        .chat-input-row { 
+            background: #111; border-top: 1px solid #222; padding: 8px;
+            display: flex; gap: 8px; flex-shrink: 0;
+        }
+        #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 16px; outline: none; }
 
-        /* POPRAWKI DLA TELEFONU (Układ pionowy) */
+        /* MOBILE FIX */
         @media (max-width: 768px) {
             .app-container { 
                 grid-template-columns: 1fr;
-                grid-template-rows: 1fr auto;
+                grid-template-rows: 1fr 1fr; /* Równy podział na wideo i czat */
             }
-            .side-panel { height: auto; }
-            #local-wrapper { height: 120px; width: 160px; align-self: center; } /* Mniejszy podgląd na telefonie */
-            .chat-area { height: 250px; }
+            #local-wrapper { width: 80px; bottom: 10px; right: 10px; } /* Mniejszy podgląd na komórce */
         }
     </style>
 </head>
 <body>
+
 <div id="overlay-start">
     <h1 style="color:var(--accent)">GHOST CAM PRO</h1>
-    <button class="start-btn" onclick="initApp()">START</button>
+    <button class="start-btn" onclick="initApp()">ODBLOKUJ LIVE</button>
 </div>
+
 <div class="app-container">
-    <div id="remote-wrapper"><video id="remote-video" autoplay playsinline></video></div>
+    <div id="remote-wrapper">
+        <video id="remote-video" autoplay playsinline></video>
+        <div id="local-wrapper">
+            <video id="local-video" autoplay playsinline muted></video>
+        </div>
+    </div>
+    
     <div class="side-panel">
-        <div id="local-wrapper"><video id="local-video" autoplay playsinline muted></video></div>
         <div class="btn-stack">
             <button class="action-btn" onclick="location.reload()">🔄</button>
             <button class="action-btn" onclick="copyInviteLink()">🔗</button>
             <button class="action-btn" onclick="manualSync()">⚡</button>
         </div>
+
         <div class="chat-area">
             <div id="chat-messages"></div>
             <div class="chat-input-row">
-                <input type="text" id="msg-input" placeholder="Wiadomość..." onkeypress="if(event.key==='Enter')sendChat()">
+                <input type="text" id="msg-input" placeholder="Napisz..." onkeypress="if(event.key==='Enter')sendChat()">
                 <button onclick="sendChat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 15px; font-weight:bold; color:#000;">OK</button>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     const METERED_DOMAIN = "backensky.metered.live";
     const API_KEY = "1c9015c3aacc93647fc597a3684fdb387677";
+
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     let roomID = window.location.hash.substring(1) || Math.random().toString(36).substring(2, 8);
     window.location.hash = roomID;
+
     let peer, conn, localStream;
     const rVideo = document.getElementById('remote-video');
     const lVideo = document.getElementById('local-video');
@@ -128,13 +175,20 @@
                 call.answer(localStream);
                 call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
             });
-            peer.on('connection', c => { conn = c; c.on('data', d => addChatMsg(d, 'peer')); });
-        } catch (e) { alert("Błąd: " + e.message); }
+            peer.on('connection', c => {
+                conn = c;
+                c.on('data', data => addChatMsg(data, 'peer'));
+            });
+        } catch (e) { alert("Error: " + e.message); }
     }
 
     function sendChat() {
-        const i = document.getElementById('msg-input');
-        if (i.value && conn && conn.open) { conn.send(i.value); addChatMsg(i.value, 'me'); i.value = ''; }
+        const input = document.getElementById('msg-input');
+        if (input.value && conn && conn.open) {
+            conn.send(input.value);
+            addChatMsg(input.value, 'me');
+            input.value = '';
+        }
     }
 
     function manualSync() {
@@ -142,7 +196,7 @@
         const call = peer.call(roomID, localStream);
         call.on('stream', s => { rVideo.srcObject = s; rVideo.play(); });
         conn = peer.connect(roomID);
-        conn.on('data', d => addChatMsg(d, 'peer'));
+        conn.on('data', data => addChatMsg(data, 'peer'));
     }
 
     function copyInviteLink() {
