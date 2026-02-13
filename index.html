@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro - Custom Layout</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Ghost Cam Pro v1.2</title> <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --accent: #fffc00; --bg: #000; --radius: 15px; }
         
         html, body { 
             margin: 0; padding: 0; height: 100dvh; width: 100vw; 
-            background: #000; color: #fff; font-family: -apple-system, sans-serif; 
+            background: #000; color: #fff; font-family: sans-serif; 
             overflow: hidden; position: fixed;
         }
         
@@ -50,34 +49,39 @@
         .chat-input-row { background: #111; border-top: 1px solid #222; padding: 8px; display: flex; gap: 8px; flex-shrink: 0; }
         #msg-input { flex: 1; background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; outline: none; }
 
-        /* UKŁAD MOBILNY (WEDŁUG TWOJEGO PROJEKTU) */
+        /* UKŁAD MOBILNY - DOKŁADNIE WG TWOJEGO RYSUNKU */
         @media (max-width: 768px) {
             .app-container { 
                 display: flex; flex-direction: column; gap: 5px; padding: 5px;
             }
-            #remote-wrapper { height: 40vh; flex: none; } /* CZERWONY */
+            #remote-wrapper { height: 45vh; flex: none; } /* CZERWONY */
 
-            .side-panel { display: grid; grid-template-rows: auto 1fr; gap: 5px; flex: 1; }
+            .side-panel { display: flex; flex-direction: column; gap: 5px; flex: 1; }
 
-            /* ŚRODKOWY WIERSZ: PRZYCISKI I OKNO HOSTA */
+            /* WIERSZ: PRZYCISKI (Niebieski) + HOST (Jasnozielony) */
             .controls-group { 
-                display: grid; 
-                grid-template-columns: 1fr 120px; /* NIEBIESKI | JASNOZIELONY */
+                display: flex; 
                 gap: 5px;
                 height: 100px;
+                flex-shrink: 0;
             }
             
             .btn-stack { 
+                flex: 1; /* Zajmuje lewą stronę */
                 display: grid; 
-                grid-template-columns: 1fr 1fr; /* Przyciski obok siebie */
+                grid-template-columns: repeat(3, 1fr); 
                 grid-template-rows: 1fr;
                 gap: 5px;
             }
             .action-btn { font-size: 24px; height: 100%; }
-            #local-wrapper { width: 100%; height: 100%; }
+            #local-wrapper { 
+                width: 130px; /* Sztywna szerokość dla okna hosta */
+                height: 100%; 
+                flex: none;
+            }
 
             /* CZAT (ŻÓŁTY) */
-            .chat-area { flex: 1; min-height: 150px; }
+            .chat-area { flex: 1; min-height: 0; }
         }
     </style>
 </head>
