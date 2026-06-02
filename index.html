@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghost Cam Pro v1.6.3</title>
+    <title>Ghost Cam Pro v1.6.4</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root { --accent: #fffc00; --bg: #000; --radius: 15px; }
@@ -48,7 +48,7 @@
 </div>
 <div class="app-container">
     <div id="remote-wrapper">
-        <video id="remote-video" autoplay playsinline webkit-playsinline muted></video>
+        <video id="remote-video" autoplay playsinline webkit-playsinline></video>
     </div>
     <div class="side-panel">
         <div class="controls-group">
@@ -94,10 +94,11 @@
     }
 
     async function initApp() {
+        // Natychmiast ukrywamy nakładkę startową
         document.getElementById('overlay-start').style.display = 'none';
         try {
-            // Bezpieczne pobieranie uprawnień
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            // Powrót do bezpiecznych, uniwersalnych ustawień kamery
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
             document.getElementById('local-video').srcObject = localStream;
             
             const iceServers = await getIceServers();
@@ -108,8 +109,7 @@
 
             peer.on('open', () => { 
                 if (mode === 'join') {
-                    // Dodatkowe opóźnienie, by dać iOS czas na przetworzenie audio/video
-                    setTimeout(manualSync, 2000); 
+                    setTimeout(manualSync, 1500); 
                 } 
             });
 
@@ -118,9 +118,7 @@
                 call.on('stream', s => { 
                     const rv = document.getElementById('remote-video'); 
                     rv.srcObject = s; 
-                    rv.muted = false; // Odblokowanie dźwięku przy odebraniu strumienia
-                    rv.play().catch(err => {
-                        // Jeśli iOS protestuje, odpalamy jako wyciszone i dajemy użytkownikowi sekundę
+                    rv.play().catch(() => {
                         rv.muted = true;
                         rv.play().then(() => {
                             setTimeout(() => { rv.muted = false; }, 500);
@@ -134,7 +132,8 @@
                 c.on('data', d => addChatMsg(d, 'peer')); 
             });
         } catch (e) { 
-            alert("Błąd kamery/mikrofonu: " + e.message + ". Upewnij się, że dałeś uprawnienia w Safari!"); 
+            // Zamiast czarnego ekranu dostaniesz jasne info w czym problem
+            alert("Błąd inicjalizacji: " + e.message + "\nSprawdź czy kamera nie jest używana przez inny program!"); 
         }
     }
 
@@ -152,7 +151,6 @@
         call.on('stream', s => { 
             const rv = document.getElementById('remote-video'); 
             rv.srcObject = s; 
-            rv.muted = false;
             rv.play().catch(() => {
                 rv.muted = true;
                 rv.play().then(() => {
